@@ -27,11 +27,9 @@ public class Application {
 
         System.out.println(binaryTree.contains(3));
         System.out.println(binaryTree.contains(10));
-
     }
 
     private static <T> void printFormatTree(T value) {
         System.out.printf("%s ", value);
     }
-
 }

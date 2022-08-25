@@ -141,13 +141,10 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
     @Override
     public void update(T oldValue, T newValue) {
         if (contains(oldValue)) {
-            Node<T> node = getNodeByValue(root, oldValue);
-            node.value = newValue;
-
+            delete(oldValue);
+            add(newValue);
         }
     }
-
-
 
     @Override
     public boolean contains(T value) {
