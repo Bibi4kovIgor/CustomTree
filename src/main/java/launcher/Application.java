@@ -13,7 +13,6 @@ public class Application {
         binaryTree.add(7);
         binaryTree.add(9);
 
-
         binaryTree.forEach(Application::printFormatTree);
         System.out.println("\tSize -> " + binaryTree.getSize());
 

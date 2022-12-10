@@ -11,7 +11,6 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
 
     private Node<T> root;
 
-
     private Integer size = 0;
 
     public Integer getSize() {
