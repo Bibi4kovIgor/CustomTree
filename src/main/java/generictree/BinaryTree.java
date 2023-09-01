@@ -4,20 +4,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class BinaryTreeImplementation<T extends Comparable<T>>
+public class BinaryTree<T extends Comparable<T>>
         implements Tree<T> {
 
     public static final String BINARY_TREE_IS_EMPTY = "Binary tree is empty";
 
     private Node<T> root;
 
-    private Integer size = 0;
+    private Integer size;
 
     public Integer getSize() {
         return size;
     }
 
-    private static class Node <T> {
+    private static class Node<T> {
         T value;
         Node<T> left;
         Node<T> right;
@@ -29,13 +29,7 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
         }
     }
 
-    @NotNull
-    @Override
-    public Iterator<T> iterator() {
-        return new TreeItr<>(root);
-    }
-
-    private static class TreeItr<T> implements TreeIterator<T> {
+    private static class TreeItr<T> implements Iterator<T> {
 
         private final Queue<T> nodeList;
 
@@ -66,6 +60,17 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
         }
     }
 
+    @NotNull
+    @Override
+    public Iterator<T> iterator() {
+        return new TreeItr<>(root);
+    }
+
+    public BinaryTree() {
+        root = null;
+        size = 0;
+    }
+
     @Override
     public void add(T value) {
         root = addElementRecursive(root, value);
@@ -88,12 +93,12 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
 
     @Override
     public void delete(T value) {
-        deleteElementRecursively(root, value);
+        root = deleteElementRecursively(root, value);
     }
 
-    private Optional<Node<T>> deleteElementRecursively(Node<T> current, T value) {
+    private Node<T> deleteElementRecursively(Node<T> current, T value) {
         if (Objects.isNull(current)) {
-            return Optional.empty();
+            return null;
         }
 
         if (value.equals(current.value)) {
@@ -102,35 +107,35 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
         }
 
         if (value.compareTo(current.value) < 0) {
-            current.left = deleteElementRecursively(current.left, value).orElse(null);
-            return Optional.of(current);
+            current.left = deleteElementRecursively(current.left, value);
+            return current;
         }
 
-        current.right = deleteElementRecursively(current.right, value).orElse(null);
+        current.right = deleteElementRecursively(current.right, value);
 
-        return Optional.of(current);
+        return current;
     }
 
-    private Optional<Node<T>> deleteNode(Node<T> current) {
-        // Case 1: no children
+    private Node<T> deleteNode(Node<T> current) {
+
         if (Objects.isNull(current.left) && Objects.isNull(current.right)) {
-            return Optional.empty();
+            return null;
         }
 
         // Case 2: only 1 child
         if (Objects.isNull(current.right)) {
-            return Optional.of(current.left);
+            return current.left;
         }
 
         if (Objects.isNull(current.left)) {
-            return Optional.of(current.right);
+            return current.right;
         }
 
         // Case 3: 2 children
         T smallestValue = findSmallestValue(current.right);
         current.value = smallestValue;
-        current.right = deleteElementRecursively(current.right, smallestValue).orElse(null);
-        return Optional.of(current);
+        current.right = deleteElementRecursively(current.right, smallestValue);
+        return current;
     }
 
     private T findSmallestValue(Node<T> current) {
@@ -147,7 +152,7 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
 
     @Override
     public boolean contains(T value) {
-        return Objects.nonNull(getNodeByValue(root, value));
+        return Objects.nonNull(root) && Objects.nonNull(getNodeByValue(root, value));
     }
 
     private Node<T> getNodeByValue(Node<T> current, T value) {
@@ -164,4 +169,20 @@ public class BinaryTreeImplementation<T extends Comparable<T>>
         return result;
     }
 
+    @Override
+    public String toString() {
+        return Arrays.toString(toArray());
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T[] toArray() {
+        Object[] array = new Object[size];
+        for (int i = 0; iterator().hasNext(); i++) {
+            array[i] = iterator().next();
+        }
+        return (T[]) Arrays.copyOf(array, size);
+    }
 }

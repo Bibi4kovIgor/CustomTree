@@ -1,10 +1,10 @@
 package launcher;
 
-import generictree.BinaryTreeImplementation;
+import generictree.BinaryTree;
 
 public class Application {
     public static void main(String[] args) {
-        BinaryTreeImplementation<Integer> binaryTree = new BinaryTreeImplementation<>();
+        BinaryTree<Integer> binaryTree = new BinaryTree<>();
         binaryTree.add(6);
         binaryTree.add(4);
         binaryTree.add(8);
@@ -26,6 +26,7 @@ public class Application {
 
         System.out.println(binaryTree.contains(3));
         System.out.println(binaryTree.contains(10));
+
     }
 
     private static <T> void printFormatTree(T value) {
