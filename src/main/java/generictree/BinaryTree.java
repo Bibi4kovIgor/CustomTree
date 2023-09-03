@@ -1,8 +1,11 @@
 package generictree;
 
-import org.jetbrains.annotations.NotNull;
+import exceptions.WrongElementAccessorException;
+import lombok.SneakyThrows;
 
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class BinaryTree<T extends Comparable<T>>
         implements Tree<T> {
@@ -29,21 +32,14 @@ public class BinaryTree<T extends Comparable<T>>
         }
     }
 
-    private static class TreeItr<T> implements Iterator<T> {
+    private abstract static class TreeIterator<E> implements Iterator<E> {
 
-        private final Queue<T> nodeList;
+        protected final Queue<E> nodeList;
+        protected final Node<E> root;
 
-        public TreeItr(Node<T> root) {
+        private TreeIterator(Node<E> current) {
             this.nodeList = new ArrayDeque<>();
-            traverseInOrder(root);
-        }
-
-        private void traverseInOrder(Node<T> current) {
-            if (Objects.nonNull(current)) {
-                traverseInOrder(current.left);
-                nodeList.add(current.value);
-                traverseInOrder(current.right);
-            }
+            this.root = current;
         }
 
         @Override
@@ -52,7 +48,7 @@ public class BinaryTree<T extends Comparable<T>>
         }
 
         @Override
-        public T next() {
+        public E next() {
             if (!hasNext()) {
                 throw new NoSuchElementException(BINARY_TREE_IS_EMPTY);
             }
@@ -60,10 +56,56 @@ public class BinaryTree<T extends Comparable<T>>
         }
     }
 
-    @NotNull
+    private final class TreeIteratorOrdered<E> extends TreeIterator<E> {
+        public TreeIteratorOrdered(Node<E> current) throws WrongElementAccessorException {
+            super(current);
+            if (Objects.isNull(current)) {
+                throw new WrongElementAccessorException("Tree is empty");
+            }
+            traverseInOrder(current);
+        }
+
+        private void traverseInOrder(Node<E> current) {
+            if (Objects.nonNull(current)) {
+                traverseInOrder(current.left);
+                nodeList.add(current.value);
+                traverseInOrder(current.right);
+            }
+        }
+
+    }
+    private final class TreeIteratorOrderedDesc<E> extends TreeIterator<E> {
+        public TreeIteratorOrderedDesc(Node<E> current) throws WrongElementAccessorException {
+            super(current);
+            if (Objects.isNull(current)) {
+                throw new WrongElementAccessorException("Tree is empty");
+            }
+            traverseInOrderDesc(current);
+        }
+        private void traverseInOrderDesc(Node<E> current) {
+            if (Objects.nonNull(current)) {
+                traverseInOrderDesc(current.right);
+                nodeList.add(current.value);
+                traverseInOrderDesc(current.left);
+            }
+        }
+    }
+
     @Override
+    public Stream<T> stream() {
+        Spliterator<T> spliterator = Spliterators.spliteratorUnknownSize(iterator(), Spliterator.SIZED);
+        return StreamSupport.stream(spliterator, false);
+    }
+
+    @SneakyThrows
+    private Iterator<T> reversedIterator() {
+        return new TreeIteratorOrderedDesc<>(root);
+    }
+
+    @Override
+    @SneakyThrows
     public Iterator<T> iterator() {
-        return new TreeItr<>(root);
+        return new TreeIteratorOrdered<>(root);
     }
 
     public BinaryTree() {
@@ -171,18 +213,20 @@ public class BinaryTree<T extends Comparable<T>>
 
     @Override
     public String toString() {
-        return Arrays.toString(toArray());
+        return Arrays.toString(toArray(reversedIterator()));
     }
 
-
-
-    @SuppressWarnings("unchecked")
     @Override
-    public T[] toArray() {
+    public String traverseInOrderDesc() {
+        return Arrays.toString(toArray(reversedIterator()));
+    }
+
+    private Object[] toArray(Iterator<T> iterator) {
         Object[] array = new Object[size];
-        for (int i = 0; iterator().hasNext(); i++) {
-            array[i] = iterator().next();
+
+        for (int i = 0; iterator.hasNext(); i++) {
+            array[i] = iterator.next();
         }
-        return (T[]) Arrays.copyOf(array, size);
+        return array;
     }
 }

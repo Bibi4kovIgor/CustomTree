@@ -3,6 +3,7 @@ package launcher;
 import generictree.BinaryTree;
 
 public class Application {
+
     public static void main(String[] args) {
         BinaryTree<Integer> binaryTree = new BinaryTree<>();
         binaryTree.add(6);
@@ -26,6 +27,18 @@ public class Application {
 
         System.out.println(binaryTree.contains(3));
         System.out.println(binaryTree.contains(10));
+
+        binaryTree.stream().forEach(Application::printFormatTree);
+
+        System.out.println();
+
+        binaryTree.stream()
+                .map(String::valueOf)
+                .forEach(Application::printFormatTree);
+
+        System.out.println();
+
+        System.out.println(binaryTree.traverseInOrderDesc());
 
     }
 
