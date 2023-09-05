@@ -213,7 +213,7 @@ public class BinaryTree<T extends Comparable<T>>
 
     @Override
     public String toString() {
-        return Arrays.toString(toArray(reversedIterator()));
+        return Arrays.toString(toArray(iterator()));
     }
 
     @Override
